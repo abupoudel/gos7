@@ -45,7 +45,7 @@ func NewTCPClientHandler(address string, rack int, slot int) *TCPClientHandler {
 	h.IdleTimeout = tcpIdleTimeout
 	h.ConnectionType = connectionTypePG // Connect to the PLC as a PG
 	remoteTSAP := uint16(h.ConnectionType)<<8 + (uint16(rack) * 0x20) + uint16(slot)
-	h.setConnectionParameters(address, 0x0100, remoteTSAP)
+	h.SetConnectionParameters(address, 0x0100, remoteTSAP)
 	return h
 }
 
@@ -57,7 +57,7 @@ func NewTCPClientHandlerWithConnectType(address string, rack int, slot int, conn
 	h.IdleTimeout = tcpIdleTimeout
 	h.ConnectionType = connectType
 	remoteTSAP := uint16(h.ConnectionType)<<8 + (uint16(rack) * 0x20) + uint16(slot)
-	h.setConnectionParameters(address, 0x0100, remoteTSAP)
+	h.SetConnectionParameters(address, 0x0100, remoteTSAP)
 	return h
 }
 
@@ -106,7 +106,7 @@ type tcpTransporter struct {
 	PDULength int
 }
 
-func (mb *tcpTransporter) setConnectionParameters(address string, localTSAP uint16, remoteTSAP uint16) {
+func (mb *tcpTransporter) SetConnectionParameters(address string, localTSAP uint16, remoteTSAP uint16) {
 	locTSAP := localTSAP & 0x0000FFFF
 	remTSAP := remoteTSAP & 0x0000FFFF
 	if len(strings.Split(address, ":")) < 2 {
@@ -114,6 +114,8 @@ func (mb *tcpTransporter) setConnectionParameters(address string, localTSAP uint
 	} else {
 		mb.Address = address
 	}
+	mb.localTSAP = locTSAP
+	mb.remoteTSAP = remTSAP
 	mb.localTSAPHigh = byte(locTSAP >> 8)
 	mb.localTSAPLow = byte(locTSAP & 0x00FF)
 	mb.remoteTSAPHigh = byte(remTSAP >> 8)
